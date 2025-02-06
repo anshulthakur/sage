@@ -16,6 +16,6 @@ def build_llm_via_langchain(provider: str, model: str):
             raise ValueError("Please set the ANTHROPIC_API_KEY environment variable.")
         return ChatAnthropic(model=model or "claude-3-opus-20240229")
     elif provider == "ollama":
-        return ChatOllama(model=model or "llama3.1")
+        return ChatOllama(model=model or "llama3.1", base_url="http://srsw.cdot.in:11434")
     else:
         raise ValueError(f"Unrecognized LLM provider {provider}. Contributons are welcome!")

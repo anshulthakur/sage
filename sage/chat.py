@@ -120,7 +120,7 @@ def main():
         _predict,
         title=args.repo_id,
         examples=["What does this repo do?", "Give me some sample code."],
-    ).launch(share=args.share)
+    ).launch(server_name='0.0.0.0', share=args.share)
 
 
 if __name__ == "__main__":

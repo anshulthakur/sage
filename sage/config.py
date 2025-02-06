@@ -82,11 +82,9 @@ def add_repo_args(parser: ArgumentParser) -> Callable:
         help="The local directory to store the repository",
     )
     parser.add(
-        "--repo-mode",
-        default = "remote",
-        choices=["local", "remote"],
-        help="Define where is the repo present"
+        "--repo-mode",default = "remote", choices=["local", "remote"],help="Define where is the repo present"
     )
+    print('Returning from add_repo_args')
     return validate_repo_args
 
 
