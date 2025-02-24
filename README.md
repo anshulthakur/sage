@@ -23,6 +23,18 @@
 
 ***
 
+## Example Usage
+
+### Indexing
+
+```bash
+python index.py kevdah/sage --mode=local --index-repo --no-llm-retriever
+```
+### Starting up the chat
+```bash
+python chat.py kevdah/sage --mode=local --llm-model=qwen2.5:14b --llm-provider=ollama --embedding-provider=marqo --vector-store-provider=marqo --index-repo --no-llm-retriever
+```
+
 **Sage** is like an open-source GitHub Copilot that helps you learn how a codebase works and how to integrate it into your project without spending hours sifting through the code.
 
 # Main features

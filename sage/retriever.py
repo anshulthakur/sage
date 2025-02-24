@@ -27,7 +27,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Use a local LLM through Ollama.
-LOCAL_MODEL = "qwen2.5:14b"
 LOCAL_MODEL_CONTEXT_SIZE = 32768  # Adjust as appropriate for your model
 
 def call_ollama_chat(model: str, messages: List[Dict]) -> ChatResponse:
@@ -48,15 +47,17 @@ class LLMRetriever(BaseRetriever):
 
     repo_manager: GitHubRepoManager = Field(...)
     top_k: int = Field(...)
+    local_model: str = ""
 
     cached_repo_metadata: List[Dict] = Field(...)
     cached_repo_files: List[str] = Field(...)
     cached_repo_hierarchy: str = Field(...)
 
-    def __init__(self, repo_manager: GitHubRepoManager, top_k: int):
+    def __init__(self, repo_manager: GitHubRepoManager, top_k: int, local_model: str):
         super().__init__()
         self.repo_manager = repo_manager
         self.top_k = top_k
+        self.local_model = local_model
 
         # Manually cache these fields.
         self.cached_repo_metadata = None
@@ -150,7 +151,7 @@ User query: {user_query}
 DO NOT RESPOND TO THE USER QUERY DIRECTLY. Instead, respond with full paths to relevant files.
 Say nothing else.
 """
-        response = LLMRetriever._call_via_ollama_with_prompt(sys_prompt, augmented_user_query)
+        response = LLMRetriever._call_via_ollama_with_prompt(sys_prompt, augmented_user_query, self.local_model)
         # Access the response via the Ollama API.
         files_from_llm = response.message.content.strip().split("\n")
         validated_files = []
@@ -166,14 +167,14 @@ Say nothing else.
         return validated_files
 
     @staticmethod
-    def _call_via_ollama_with_prompt(system_prompt: str, user_prompt: str) -> ChatResponse:
+    def _call_via_ollama_with_prompt(system_prompt: str, user_prompt: str, local_model: str) -> ChatResponse:
         """
         Combines the system prompt and user query, calls the local LLM via the Ollama Python library,
         and returns the response.
         """
         combined_prompt = f"{system_prompt}\n{user_prompt}"
         messages = [{"role": "user", "content": combined_prompt}]
-        response = call_ollama_chat(model=LOCAL_MODEL, messages=messages)
+        response = call_ollama_chat(model=local_model, messages=messages)
         logging.info("Ollama response: %s", response.message.content)
         return response
 
@@ -272,7 +273,8 @@ def build_retriever_from_args(args, data_manager: Optional[DataManager] = None):
     Builds a retriever (with optional reranking) from command-line arguments.
     """
     if args.llm_retriever:
-        retriever = LLMRetriever(GitHubRepoManager.from_args(args), top_k=args.retriever_top_k)
+        print("LOCAL_MODEL =", args.llm_model)
+        retriever = LLMRetriever(GitHubRepoManager.from_args(args), top_k=args.retriever_top_k, local_model=args.llm_model)
     else:
         if args.embedding_provider == "openai":
             embeddings = OpenAIEmbeddings(model=args.embedding_model)
