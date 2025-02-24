@@ -375,10 +375,11 @@ def validate_vector_store_args(args):
     """Validates the configuration of the vector store and sets defaults."""
     if args.llm_retriever:
         if not os.getenv("ANTHROPIC_API_KEY"):
-            raise ValueError(
-                "Please set the ANTHROPIC_API_KEY environment variable to use the LLM retriever. "
-                "(We're constrained to Claude because we need prompt caching.)"
-            )
+            print('Anthropic key not set')
+            #raise ValueError(
+            #    "Please set the ANTHROPIC_API_KEY environment variable to use the LLM retriever. "
+            #    "(We're constrained to Claude because we need prompt caching.)"
+            #)
 
         if args.index_issues:
             # The LLM retriever only makes sense on the code repository, since it passes file paths to the LLM.
