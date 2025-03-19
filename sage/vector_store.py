@@ -448,7 +448,7 @@ def build_vector_store_from_args(
             if not os.path.exists(bm25_folder):
                 os.makedirs(bm25_folder)
             bm25_encoder.dump(bm25_cache)
-
+        print('Using Pinecone Vector Store')
         return PineconeVectorStore(
             index_name=args.index_name,
             dimension=args.embedding_size if "embedding_size" in args else None,
@@ -456,16 +456,19 @@ def build_vector_store_from_args(
             bm25_cache=bm25_cache,
         )
     elif args.vector_store_provider == "chroma":
-        return ChromaVectorStore(
-            index_name=args.index_name,
-        )
+        print('Using Chroma Vector Store')
+        return ChromaVectorStore(index_name=args.index_name)
     elif args.vector_store_provider == "faiss":
+        print('Using FAISS Vector Store')
         return FAISSVectorStore(index_name=args.index_name, dimension=args.embedding_size, embeddings=embeddings)
     elif args.vector_store_provider == "milvus":
+        print('Using Milvus Vector Store')
         return MilvusVectorStore(uri=args.milvus_uri, index_name=args.index_name, embeddings=embeddings)
     elif args.vector_store_provider == "qdrant":
+        print('Using Qdrant Vector Store')
         return QdrantVectorStore(index_name=args.index_name, dimension=args.embedding_size, embeddings=embeddings)
     elif args.vector_store_provider == "marqo":
+        print('Using Marqo Vector Store')
         return MarqoVectorStore(url=args.marqo_url, index_name=args.index_namespace)
     else:
         raise ValueError(f"Unrecognized vector store type {args.vector_store_provider}")
